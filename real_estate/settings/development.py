@@ -1,7 +1,7 @@
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
-from .base import *
+from real_estate.settings.base import *
 
 DATABASES = {
     'default': {
