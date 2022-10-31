@@ -43,13 +43,13 @@ class Property(TimeStampedModel):
     slug = AutoSlugField(populate_from="title", unique=True, always_update=True)
     ref_code = models.CharField(verbose_name=_("Property Reference Code"), max_length=255, unique=True, blank=True )
     description = models.TextField(verbose_name=_("Description......."), default="Default description... update me please......", )
-    country = CountryField(verbose_name=_("Country"), default="MK", blank_label="(select country)")
+    country = CountryField(verbose_name=_("Country"), default="Malawi", blank_label="(select country)")
     city = models.CharField(verbose_name=_("City"), max_length=160, default="Blantyre")
     postal_code = models.CharField(verbose_name=_("Postal Code"), max_length=150)
     street_address = models.CharField(verbose_name=_("Street Address"), max_length=150, default="MZ74 Luwinga")
     property_number = models.IntegerField(verbose_name=_("Property Number"), validators=[MinValueValidator(1)], default=112)
     price = models.DecimalField(verbose_name=_("Price"), max_digits = 8, decimal_places=2, default=0.0)
-    taxt = models.DecimalField(verbose_name=_("Property Tax"), max_digits=6, decimal_places=2, default=0.30, help_text="30% property tax charged")
+    tax = models.DecimalField(verbose_name=_("Property Tax"), max_digits=6, decimal_places=2, default=0.30, help_text="30% property tax charged")
     plot_area = models.DecimalField(verbose_name=_("Plot Area(m^2)"), max_digits=8, decimal_places=2, default=0.0)
     total_floors = models.IntegerField(verbose_name=_("Number of Floors"), default=0)
     bedrooms = models.IntegerField(verbose_name=_("Bedrooms"), default=1)
@@ -76,7 +76,7 @@ class Property(TimeStampedModel):
     
     def save(self, *args, **kwargs):
         self.title = str.title(self.title)
-        self.description = str.description(self.description)
+        self.description = str.capitalize(self.description)
         self.ref_code="".join(random.choices(string.ascii_uppercase + string.digits, k=10))
         super(Property, self).save(*args, **kwargs)
     

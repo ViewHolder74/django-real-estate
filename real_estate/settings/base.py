@@ -62,8 +62,8 @@ LOCAL_APPS = [
     "apps.users",
     "apps.profiles",
     "apps.ratings",
-    "apps.enquiries",
-    "apps.properties"
+    "apps.properties",
+    "apps.enquiries"
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS

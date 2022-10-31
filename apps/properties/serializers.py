@@ -20,7 +20,7 @@ class PropertySerializer(serializers.ModelSerializer):
             "description",
             "country",
             "city",
-            "postal_address",
+            "postal_code",
             "street_address",
             "property_number",
             "price",
