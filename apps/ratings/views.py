@@ -4,9 +4,11 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 
 from apps.profiles.models import Profile
+
 from .models import Rating
 
 User = get_user_model()
+
 
 @api_view(["POST"])
 @permission_classes([permissions.IsAuthenticated])
@@ -19,10 +21,12 @@ def create_agent_review(request, profile_id):
         formatted_response = {"message": "you cannot rate yourself"}
         return Response(formatted_response, status=status.HTTP_403_FORBIDDEN)
 
-    alradyExists = agent_profile.agent_review.filter(agent__pkid = profile_user.pkid).exists()
+    alradyExists = agent_profile.agent_review.filter(
+        agent__pkid=profile_user.pkid
+    ).exists()
 
-    if alradyExists :
-        formatted_response = {"detail":"Profile already reviewed"}
+    if alradyExists:
+        formatted_response = {"detail": "Profile already reviewed"}
         return Response(formatted_response, status=status.HTTP_400_BAD_REQUEST)
 
     elif data["rating"] == 0:
@@ -31,15 +35,15 @@ def create_agent_review(request, profile_id):
 
     else:
         review = Rating.objects.create(
-            rater = request.user,
-            agent = agent_profile,
-            rating = data["rating"],
-            comment = data["comment"]
+            rater=request.user,
+            agent=agent_profile,
+            rating=data["rating"],
+            comment=data["comment"],
         )
         reviews = agent_profile.agent_review.all()
         agent_profile.num_reviews = len(reviews)
 
         total = 0
         for i in reviews:
-            total  += i.rating
+            total += i.rating
         return Response("Review Added")

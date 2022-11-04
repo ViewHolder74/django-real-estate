@@ -1,11 +1,14 @@
 from asyncore import read
+
 from pyexpat import model
 from rest_framework import serializers
+
 from .models import Rating
+
 
 class RatingSerializers(serializers.ModelSerializer):
     rater = serializers.SerializerMethodField(read_only=True)
-    agent = serializers.SerializerMethodField(read_only=True) 
+    agent = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = Rating
@@ -13,7 +16,6 @@ class RatingSerializers(serializers.ModelSerializer):
 
     def get_rater(self, obj):
         return obj.rater.username
-    
+
     def get_agent(self, obj):
         return obj.agent.user.username
-        

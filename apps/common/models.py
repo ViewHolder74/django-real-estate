@@ -1,7 +1,9 @@
+import uuid
 from email.policy import default
 from enum import auto, unique
+
 from django.db import models
-import uuid 
+
 
 class TimeStampedModel(models.Model):
     pkid = models.BigAutoField(primary_key=True, editable=False)

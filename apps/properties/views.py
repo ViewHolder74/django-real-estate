@@ -1,4 +1,3 @@
-
 import logging
 
 import django_filters
@@ -11,72 +10,70 @@ from rest_framework.views import APIView
 from .exceptions import PropertyNotFound
 from .models import Property, PropertyViews
 from .pagination import PropertyPagination
-from .serializers import(PropertyCreateSerializer, PropertySerializer, PropertViewSerializer)
-
+from .serializers import (PropertViewSerializer, PropertyCreateSerializer,
+                          PropertySerializer)
 
 logger = logging.getLogger(__name__)
 
+
 class PropertyFilter(django_filters.FilterSet):
-     
-     advert_type = django_filters.CharFilter(
+
+    advert_type = django_filters.CharFilter(
         field_name="advert_type", lookup_expr="iexact"
-     )
+    )
 
-     property_type = django_filters.CharFilter(
+    property_type = django_filters.CharFilter(
         field_name="property_type", lookup_expr="iexact"
-     )
-     price = django_filters.NumberFilter()
-     price__gt = django_filters.NumberFilter(
-        field_name="price", lookup_expr="gt"
-     )
-     price__lt = django_filters.NumberFilter(
-        field_name="price", lookup_expr="lt"
-     )
+    )
+    price = django_filters.NumberFilter()
+    price__gt = django_filters.NumberFilter(field_name="price", lookup_expr="gt")
+    price__lt = django_filters.NumberFilter(field_name="price", lookup_expr="lt")
 
-     class Meta:
+    class Meta:
         model = Property
         fields = ["advert_type", "property_type", "price"]
+
 
 class ListAllPropertiesAPIView(generics.ListAPIView):
     serializer_class = PropertySerializer
     queryset = Property.objects.all().order_by("created_at")
     pagination_class = PropertyPagination
     filter_backends = [
-        DjangoFilterBackend, 
+        DjangoFilterBackend,
         filters.SearchFilter,
         filters.OrderingFilter,
-
     ]
 
     filterset_class = PropertyFilter
     search_fields = ["country", "city"]
     odering_fields = ["created_at"]
+
 
 class ListAgentsPropertyAPIView(generics.ListAPIView):
 
     serializer_class = PropertySerializer
     pagination_class = PropertyPagination
     filter_backends = [
-        DjangoFilterBackend, 
+        DjangoFilterBackend,
         filters.SearchFilter,
         filters.OrderingFilter,
-
     ]
     filterset_class = PropertyFilter
     search_fields = ["country", "city"]
     odering_fields = ["created_at"]
 
     def get_queryset(self):
-        user=self.request.user
-        queryset = Property.objects.filter(user=user).order_by('created_at')
+        user = self.request.user
+        queryset = Property.objects.filter(user=user).order_by("created_at")
         return queryset
+
 
 class PropertyViewsAPIView(generics.ListAPIView):
     serializer_class = PropertViewSerializer
     queryset = PropertyViews.objects.all()
 
-class PropertyDetailView(APIView):
 
+class PropertyDetailView(APIView):
     def get(self, request, slug):
         property = Property.objects.get(slug=slug)
 
@@ -86,14 +83,18 @@ class PropertyDetailView(APIView):
         else:
             ip = request.META.get("REMOTE_ADDR")
 
-        if not PropertyViews.objects.filter(property=property, ip=ip,).exists():
+        if not PropertyViews.objects.filter(
+            property=property,
+            ip=ip,
+        ).exists():
             PropertyViews.objects.create(property=property, ip=ip)
 
-            property.views +=1
+            property.views += 1
             property.save()
 
-        serializer = PropertySerializer(property, context={"request": request} )
+        serializer = PropertySerializer(property, context={"request": request})
         return Response(serializer.data, status=status.HTTP_200_OK)
+
 
 @api_view(["PUT"])
 @permission_classes([permissions.IsAuthenticated])
@@ -102,11 +103,14 @@ def update_property_api_view(request, slug):
         property = Property.objects.get(slug=slug)
     except Property.DoesNotExist:
         raise PropertyNotFound
-    
+
     user = request.user
     if property.user != user:
         return Response(
-            {"error": "You cannot update or edit a property that does not belong to you "},  status=status.HTTP_403_FORBIDDEN  
+            {
+                "error": "You cannot update or edit a property that does not belong to you "
+            },
+            status=status.HTTP_403_FORBIDDEN,
         )
     if request.method == "PUT":
         data = request.data
@@ -115,13 +119,14 @@ def update_property_api_view(request, slug):
         serializer.save()
     return Response(serializer.data)
 
+
 @api_view(["POST"])
 @permission_classes([permissions.IsAuthenticated])
 def create_property_api_view(request):
     user = request.user
     data = request.data
     data["user"] = request.user.pkid
-    serializer = PropertyCreateSerializer(data = data)
+    serializer = PropertyCreateSerializer(data=data)
 
     if serializer.is_valid():
         serializer.save()
@@ -131,6 +136,7 @@ def create_property_api_view(request):
         return Response(serializer.data)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
 @api_view(["DELETE"])
 @permission_classes([permissions.IsAuthenticated])
 def delete_property_api_view(request, slug):
@@ -138,11 +144,12 @@ def delete_property_api_view(request, slug):
         property = Property.objects.get(slug=slug)
     except Property.DoesNotExist:
         raise PropertyNotFound
-    
+
     user = request.user
     if property.user != user:
         return Response(
-            {"error": "You cannot delete a property that does not belong to you "},  status=status.HTTP_403_FORBIDDEN  
+            {"error": "You cannot delete a property that does not belong to you "},
+            status=status.HTTP_403_FORBIDDEN,
         )
     if request.method == "DELETE":
         delete_operation = property.delete()
@@ -153,6 +160,7 @@ def delete_property_api_view(request, slug):
             data["failure"] = "Deletion failed"
         return Response(data=data)
 
+
 @api_view(["POST"])
 def uploadPropertyImage(request):
     data = request.data
@@ -161,11 +169,12 @@ def uploadPropertyImage(request):
     property = Property.objects.get(id=property_id)
     property.cover_photo = request.FILES.get("cover_photo")
     property.photo1 = request.FILES.get("photo1")
-    property.photo2 = request.FILES.get("photo2") 
+    property.photo2 = request.FILES.get("photo2")
     property.photo3 = request.FILES.get("photo3")
     property.photo4 = request.FILES.get("photo4")
     property.save()
     return Response("Image(s) updloaded")
+
 
 class PropertySearchAPIView(APIView):
     permission_classes = [permissions.AllowAny]
@@ -213,7 +222,7 @@ class PropertySearchAPIView(APIView):
             bedrooms = 4
         elif bedrooms == "5+":
             bedrooms = 5
-        
+
         queryset = queryset.filter(bedrooms__gte=bedrooms)
 
         bathrooms = data["bathrooms"]
@@ -227,7 +236,7 @@ class PropertySearchAPIView(APIView):
             bathrooms = 3.0
         elif bathrooms == "4+":
             bathrooms = 4.0
-       
+
         queryset = queryset.filter(bathrooms__gte=bathrooms)
 
         catch_phrase = data["catch_phrase"]
@@ -235,8 +244,3 @@ class PropertySearchAPIView(APIView):
         serializer = PropertySerializer(queryset, many=True)
 
         return Response(serializer.data)
-
-            
-
-
-

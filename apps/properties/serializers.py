@@ -1,9 +1,8 @@
-from dataclasses import field
-from pyexpat import model
 from django_countries.serializer_fields import CountryField
-from django_countries.serializers import CountryFieldMixin
 from rest_framework import serializers
+
 from .models import Property, PropertyViews
+
 
 class PropertySerializer(serializers.ModelSerializer):
     user = serializers.SerializerMethodField()
@@ -13,7 +12,6 @@ class PropertySerializer(serializers.ModelSerializer):
     photo2 = serializers.SerializerMethodField()
     photo3 = serializers.SerializerMethodField()
     photo4 = serializers.SerializerMethodField()
-
 
     class Meta:
         model = Property
@@ -44,15 +42,15 @@ class PropertySerializer(serializers.ModelSerializer):
             "photo3",
             "photo4",
             "published_status",
-            "views"
+            "views",
         ]
-     
+
     def get_user(self, obj):
         return obj.user.username
 
     def get_cover_photo(self, obj):
         return obj.cover_photo.url
-    
+
     def get_photo1(self, obj):
         return obj.photo1.url
 
@@ -65,12 +63,14 @@ class PropertySerializer(serializers.ModelSerializer):
     def get_photo4(self, obj):
         return obj.photo4.url
 
+
 class PropertyCreateSerializer(serializers.ModelSerializer):
     country = CountryField(name_only=True)
-    
+
     class Meta:
         model = Property
         exclude = ["updated_at", "pkid"]
+
 
 class PropertViewSerializer(serializers.ModelSerializer):
     class Meta:

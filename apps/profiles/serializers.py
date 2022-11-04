@@ -1,9 +1,10 @@
-
 from django_countries.serializer_fields import CountryField
 from rest_framework import serializers
+
 from apps.ratings.serializers import RatingSerializers
 
 from .models import Profile
+
 
 class ProfileSerializer(serializers.ModelSerializer):
     username = serializers.CharField(source="user.username")
@@ -17,7 +18,7 @@ class ProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = Profile
         fields = [
-            "username", 
+            "username",
             "first_name",
             "last_name",
             "full_name",
@@ -36,14 +37,13 @@ class ProfileSerializer(serializers.ModelSerializer):
             "rating",
             "num_reviews",
             "reviews",
-
         ]
 
     def get_full_name(self, obj):
         first_name = obj.user.first_name.title()
         last_name = obj.user.last_name.title()
         return f"{first_name} {last_name}"
-    
+
     def get_reviews(self, obj):
         reviews = obj.agent_review.all()
         serializer = RatingSerializers(reviews, many=True)
@@ -54,6 +54,7 @@ class ProfileSerializer(serializers.ModelSerializer):
         if instance.top_agent:
             representation["top_agent"] = True
         return representation
+
 
 class UpdateProfileSerializer(serializers.ModelSerializer):
     country = CountryField(name_only=True)
@@ -70,9 +71,9 @@ class UpdateProfileSerializer(serializers.ModelSerializer):
             "country",
             "is_seller",
             "is_agent",
-            "is_buyer"
+            "is_buyer",
         ]
-    
+
     def to_representation(self, instance):
         representation = super().to_representation(instance)
         if instance.top_agent:
