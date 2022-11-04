@@ -39,7 +39,7 @@ volume:
 estate-db:
 	docker compose exec postgres-db psql --username=postgres --dbname=real_estate
 
-test:
+test-api:
 	docker compose exec api pytest -p no:warnings --cov=.
 
 test-html:
